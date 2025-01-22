@@ -1,0 +1,16 @@
+query LastFiles {
+  files_files(limit: 15, order_by: { id: asc }) {
+    id
+    name
+    chunk {
+      data
+      uploadOptions: upload_options
+    }
+    file_cids {
+      chunk {
+        data
+        uploadOptions: upload_options
+      }
+    }
+  }
+}

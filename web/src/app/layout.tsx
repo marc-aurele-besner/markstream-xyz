@@ -1,3 +1,5 @@
+import { ApolloWrapper } from "@/components/ApolloClient";
+import { RainbowKitWrapper } from "@/components/RainbowKit";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -27,7 +29,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <RainbowKitWrapper>
+          <ApolloWrapper>{children}</ApolloWrapper>
+        </RainbowKitWrapper>
       </body>
     </html>
   );

@@ -1,25 +1,33 @@
-import { PlusCircle } from "lucide-react";
-import { Metadata } from "next";
-import Image from "next/image";
+"use client";
 
+import { FileSnippet } from "@/components/file-snippet";
+import { Menu } from "@/components/menu";
+import { PodcastEmptyPlaceholder } from "@/components/podcast-empty-placeholder";
+import { Sidebar } from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { labels } from "@/data/labels";
+import { LastFilesQuery, useLastFilesSuspenseQuery } from "@/gql/graphql";
+import { PlusCircle } from "lucide-react";
+import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
 
-import { AlbumArtwork } from "@/components/album-artwork";
-import { Menu } from "@/components/menu";
-import { PodcastEmptyPlaceholder } from "@/components/podcast-empty-placeholder";
-import { Sidebar } from "@/components/sidebar";
-import { listenNowAlbums, madeForYouAlbums } from "@/data/albums";
-import { playlists } from "@/data/playlists";
+export default function HomePage() {
+  const [data, setData] = useState<LastFilesQuery | null>(null);
 
-export const metadata: Metadata = {
-  title: "Music App",
-  description: "Example music app using the components.",
-};
+  const getData = useCallback(async () => {
+    const { data } = await useLastFilesSuspenseQuery({
+      variables: {},
+    });
+    if (data) setData(data);
+  }, []);
 
-export default function MusicPage() {
+  useEffect(() => {
+    getData();
+  }, []);
+
   return (
     <>
       <div className="md:hidden">
@@ -43,38 +51,35 @@ export default function MusicPage() {
         <div className="border-t">
           <div className="bg-background">
             <div className="grid lg:grid-cols-5">
-              <Sidebar playlists={playlists} className="hidden lg:block" />
+              <Sidebar labels={labels} className="hidden lg:block" />
               <div className="col-span-3 lg:col-span-4 lg:border-l">
                 <div className="h-full px-4 py-6 lg:px-8">
-                  <Tabs defaultValue="music" className="h-full space-y-6">
+                  <Tabs defaultValue="files" className="h-full space-y-6">
                     <div className="space-between flex items-center">
                       <TabsList>
-                        <TabsTrigger value="music" className="relative">
-                          Music
+                        <TabsTrigger value="files" className="relative">
+                          Files
                         </TabsTrigger>
-                        <TabsTrigger value="podcasts">Podcasts</TabsTrigger>
-                        <TabsTrigger value="live" disabled>
-                          Live
-                        </TabsTrigger>
+                        <TabsTrigger value="folders">Folders</TabsTrigger>
                       </TabsList>
                       <div className="ml-auto mr-4">
                         <Button>
                           <PlusCircle />
-                          Add music
+                          Add label
                         </Button>
                       </div>
                     </div>
                     <TabsContent
-                      value="music"
+                      value="files"
                       className="border-none p-0 outline-none"
                     >
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
                           <h2 className="text-2xl font-semibold tracking-tight">
-                            Listen Now
+                            Files
                           </h2>
                           <p className="text-sm text-muted-foreground">
-                            Top picks for you. Updated daily.
+                            Latest files uploaded on Autonomys Network
                           </p>
                         </div>
                       </div>
@@ -82,21 +87,24 @@ export default function MusicPage() {
                       <div className="relative">
                         <ScrollArea>
                           <div className="flex space-x-4 pb-4">
-                            {listenNowAlbums.map((album) => (
-                              <AlbumArtwork
-                                key={album.name}
-                                album={album}
-                                className="w-[250px]"
-                                aspectRatio="portrait"
-                                width={250}
-                                height={330}
-                              />
-                            ))}
+                            {data &&
+                              data.files_files.map(
+                                (
+                                  file: LastFilesQuery["files_files"][number],
+                                  index: number
+                                ) => (
+                                  <FileSnippet
+                                    key={index}
+                                    file={file}
+                                    className="w-[250px]"
+                                  />
+                                )
+                              )}
                           </div>
                           <ScrollBar orientation="horizontal" />
                         </ScrollArea>
                       </div>
-                      <div className="mt-6 space-y-1">
+                      {/* <div className="mt-6 space-y-1">
                         <h2 className="text-2xl font-semibold tracking-tight">
                           Made for You
                         </h2>
@@ -108,20 +116,85 @@ export default function MusicPage() {
                       <div className="relative">
                         <ScrollArea>
                           <div className="flex space-x-4 pb-4">
-                            {madeForYouAlbums.map((album) => (
-                              <AlbumArtwork
-                                key={album.name}
-                                album={album}
-                                className="w-[150px]"
-                                aspectRatio="square"
-                                width={150}
-                                height={150}
-                              />
-                            ))}
+                            {data.files_files.map(
+                              (file: any, index: number) => (
+                                <FileSnippet
+                                  key={index}
+                                  file={file}
+                                  className="w-[250px]"
+                                  aspectRatio="portrait"
+                                  width={250}
+                                  height={330}
+                                />
+                              )
+                            )}
+                          </div>
+                          <ScrollBar orientation="horizontal" />
+                        </ScrollArea>
+                      </div> */}
+                    </TabsContent>
+                    <TabsContent
+                      value="folders"
+                      className="border-none p-0 outline-none"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <h2 className="text-2xl font-semibold tracking-tight">
+                            Folders
+                          </h2>
+                          <p className="text-sm text-muted-foreground">
+                            Latest folders uploaded on Autonomys Network
+                          </p>
+                        </div>
+                      </div>
+                      <Separator className="my-4" />
+                      <div className="relative">
+                        <ScrollArea>
+                          <div className="flex space-x-4 pb-4">
+                            {/* {data.files_files.map(
+                              (
+                                file: LastFilesQuery["files_files"][number],
+                                index: number
+                              ) => (
+                                <FileSnippet
+                                  key={index}
+                                  file={file}
+                                  className="w-[250px]"
+                                />
+                              )
+                            )} */}
                           </div>
                           <ScrollBar orientation="horizontal" />
                         </ScrollArea>
                       </div>
+                      {/* <div className="mt-6 space-y-1">
+                        <h2 className="text-2xl font-semibold tracking-tight">
+                          Made for You
+                        </h2>
+                        <p className="text-sm text-muted-foreground">
+                          Your personal playlists. Updated daily.
+                        </p>
+                      </div>
+                      <Separator className="my-4" />
+                      <div className="relative">
+                        <ScrollArea>
+                          <div className="flex space-x-4 pb-4">
+                            {data.files_files.map(
+                              (file: any, index: number) => (
+                                <FileSnippet
+                                  key={index}
+                                  file={file}
+                                  className="w-[250px]"
+                                  aspectRatio="portrait"
+                                  width={250}
+                                  height={330}
+                                />
+                              )
+                            )}
+                          </div>
+                          <ScrollBar orientation="horizontal" />
+                        </ScrollArea>
+                      </div> */}
                     </TabsContent>
                     <TabsContent
                       value="podcasts"
