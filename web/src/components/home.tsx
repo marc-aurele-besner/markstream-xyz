@@ -12,21 +12,12 @@ import { labels } from "@/data/labels";
 import { LastFilesQuery, useLastFilesSuspenseQuery } from "@/gql/graphql";
 import { PlusCircle } from "lucide-react";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
 
-export default function HomePage() {
-  const [data, setData] = useState<LastFilesQuery | null>(null);
-
-  const getData = useCallback(async () => {
-    const { data } = await useLastFilesSuspenseQuery({
-      variables: {},
-    });
-    if (data) setData(data);
-  }, []);
-
-  useEffect(() => {
-    getData();
-  }, []);
+export const Home = () => {
+  const { data } = useLastFilesSuspenseQuery({
+    variables: {},
+    fetchPolicy: "network-only",
+  });
 
   return (
     <>
@@ -222,4 +213,4 @@ export default function HomePage() {
       </div>
     </>
   );
-}
+};
