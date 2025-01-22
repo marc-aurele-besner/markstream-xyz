@@ -11,6 +11,15 @@
   },
   {
     "type": "function",
+    "name": "addLabels",
+    "inputs": [
+      { "name": "descriptions", "type": "string[]", "internalType": "string[]" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "changeOwner",
     "inputs": [
       { "name": "newOwner", "type": "address", "internalType": "address" }
@@ -42,6 +51,16 @@
     "inputs": [
       { "name": "fileHash", "type": "uint256", "internalType": "uint256" },
       { "name": "label", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "downVoteFileLabels",
+    "inputs": [
+      { "name": "fileHash", "type": "uint256", "internalType": "uint256" },
+      { "name": "_labels", "type": "uint256[]", "internalType": "uint256[]" }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
@@ -126,12 +145,36 @@
   },
   {
     "type": "function",
+    "name": "getLabelStatus",
+    "inputs": [
+      { "name": "label", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getUserContributions",
     "inputs": [
       { "name": "contributor", "type": "address", "internalType": "address" }
     ],
     "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
     "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "groupFilesVotesOnLabel",
+    "inputs": [
+      {
+        "name": "fileHashes",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      { "name": "label", "type": "uint256", "internalType": "uint256" },
+      { "name": "isUpVote", "type": "bool[]", "internalType": "bool[]" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -176,10 +219,29 @@
   },
   {
     "type": "function",
+    "name": "removeLabels",
+    "inputs": [
+      { "name": "labelsIds", "type": "uint256[]", "internalType": "uint256[]" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "upVoteFileLabel",
     "inputs": [
       { "name": "fileHash", "type": "uint256", "internalType": "uint256" },
       { "name": "label", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "upVoteFileLabels",
+    "inputs": [
+      { "name": "fileHash", "type": "uint256", "internalType": "uint256" },
+      { "name": "_labels", "type": "uint256[]", "internalType": "uint256[]" }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"

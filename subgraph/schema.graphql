@@ -1,5 +1,7 @@
 type Label @entity {
   id: Bytes!
+  labelId: BigInt! # uint256
+  description: String!
   creator: Bytes! # address
   status: String! # active, deleted
   totalContributions: BigInt! # uint256

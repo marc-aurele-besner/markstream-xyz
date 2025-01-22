@@ -31,13 +31,16 @@ export function handleLabelAdded(event: LabelAddedEvent): void {
   labelAdded.save();
 
   // Create or update mutable Label entity
-  const labelId = Bytes.fromHexString(event.params.label.toString());
+  const labelByteArray = Bytes.fromBigInt(event.params.label);
+  const labelId = Bytes.fromByteArray(labelByteArray);
   let label = Label.load(labelId);
   if (label == null) {
     label = new Label(labelId);
+    label.labelId = event.params.label;
+    label.description = event.params.description;
     label.creator = event.params.contributor;
     label.status = "active";
-    label.totalContributions = BigInt.fromI32(0);
+    label.totalContributions = BigInt.fromString("0");
     label.blockNumber = event.block.number;
     label.blockTimestamp = event.block.timestamp;
     label.transactionHash = event.transaction.hash;
@@ -58,7 +61,8 @@ export function handleLabelRemoved(event: LabelRemovedEvent): void {
   labelRemoved.save();
 
   // Update mutable Label entity
-  const labelId = Bytes.fromHexString(event.params.label.toString());
+  const labelByteArray = Bytes.fromBigInt(event.params.label);
+  const labelId = Bytes.fromByteArray(labelByteArray);
   let label = Label.load(labelId);
   if (label != null) {
     label.status = "deleted";
@@ -80,20 +84,23 @@ export function handleLabelUpVoted(event: LabelUpVotedEvent): void {
   labelUpVoted.save();
 
   // Update or create File entity
-  const fileHash = Bytes.fromHexString(event.params.fileHash.toString());
-  let file = File.load(fileHash);
+  const fileHashByteArray = Bytes.fromBigInt(event.params.fileHash);
+  const fileHashId = Bytes.fromByteArray(fileHashByteArray);
+  let file = File.load(fileHashId);
   if (file == null) {
-    file = new File(fileHash);
-    file.totalLabels = BigInt.fromI32(0);
-    file.totalContributions = BigInt.fromI32(0);
+    file = new File(fileHashId);
+    file.totalLabels = BigInt.fromString("0");
+    file.totalContributions = BigInt.fromString("0");
     file.blockNumber = event.block.number;
     file.blockTimestamp = event.block.timestamp;
     file.transactionHash = event.transaction.hash;
   }
-  file.totalContributions = file.totalContributions.plus(BigInt.fromI32(1));
+  file.totalContributions = file.totalContributions.plus(
+    BigInt.fromString("1")
+  );
   file.save();
 
-  // Update or create FileLabel entity
+  // // Update or create FileLabel entity
   let fileLabelId = Bytes.fromHexString(
     event.params.fileHash
       .toString()
@@ -105,16 +112,16 @@ export function handleLabelUpVoted(event: LabelUpVotedEvent): void {
     fileLabel = new FileLabel(fileLabelId);
     fileLabel.fileId = event.params.fileHash;
     fileLabel.labelId = event.params.label;
-    fileLabel.totalContributions = BigInt.fromI32(0);
-    fileLabel.totalUpVotes = BigInt.fromI32(0);
-    fileLabel.totalDownVotes = BigInt.fromI32(0);
+    fileLabel.totalContributions = BigInt.fromString("0");
+    fileLabel.totalUpVotes = BigInt.fromString("0");
+    fileLabel.totalDownVotes = BigInt.fromString("0");
     fileLabel.blockNumber = event.block.number;
     fileLabel.blockTimestamp = event.block.timestamp;
     fileLabel.transactionHash = event.transaction.hash;
   }
-  fileLabel.totalUpVotes = fileLabel.totalUpVotes.plus(BigInt.fromI32(1));
+  fileLabel.totalUpVotes = fileLabel.totalUpVotes.plus(BigInt.fromString("1"));
   fileLabel.totalContributions = fileLabel.totalContributions.plus(
-    BigInt.fromI32(1)
+    BigInt.fromString("1")
   );
   fileLabel.save();
 }
@@ -133,17 +140,20 @@ export function handleLabelDownVoted(event: LabelDownVotedEvent): void {
   labelDownVoted.save();
 
   // Update or create File entity
-  const fileHash = Bytes.fromHexString(event.params.fileHash.toString());
-  let file = File.load(fileHash);
+  const fileHashByteArray = Bytes.fromBigInt(event.params.fileHash);
+  const fileHashId = Bytes.fromByteArray(fileHashByteArray);
+  let file = File.load(fileHashId);
   if (file == null) {
-    file = new File(fileHash);
-    file.totalLabels = BigInt.fromI32(0);
-    file.totalContributions = BigInt.fromI32(0);
+    file = new File(fileHashId);
+    file.totalLabels = BigInt.fromString("0");
+    file.totalContributions = BigInt.fromString("0");
     file.blockNumber = event.block.number;
     file.blockTimestamp = event.block.timestamp;
     file.transactionHash = event.transaction.hash;
   }
-  file.totalContributions = file.totalContributions.plus(BigInt.fromI32(1));
+  file.totalContributions = file.totalContributions.plus(
+    BigInt.fromString("1")
+  );
   file.save();
 
   // Update or create FileLabel entity
@@ -158,16 +168,18 @@ export function handleLabelDownVoted(event: LabelDownVotedEvent): void {
     fileLabel = new FileLabel(fileLabelId);
     fileLabel.fileId = event.params.fileHash;
     fileLabel.labelId = event.params.label;
-    fileLabel.totalContributions = BigInt.fromI32(0);
-    fileLabel.totalUpVotes = BigInt.fromI32(0);
-    fileLabel.totalDownVotes = BigInt.fromI32(0);
+    fileLabel.totalContributions = BigInt.fromString("0");
+    fileLabel.totalUpVotes = BigInt.fromString("0");
+    fileLabel.totalDownVotes = BigInt.fromString("0");
     fileLabel.blockNumber = event.block.number;
     fileLabel.blockTimestamp = event.block.timestamp;
     fileLabel.transactionHash = event.transaction.hash;
   }
-  fileLabel.totalDownVotes = fileLabel.totalDownVotes.plus(BigInt.fromI32(1));
+  fileLabel.totalDownVotes = fileLabel.totalDownVotes.plus(
+    BigInt.fromString("1")
+  );
   fileLabel.totalContributions = fileLabel.totalContributions.plus(
-    BigInt.fromI32(1)
+    BigInt.fromString("1")
   );
   fileLabel.save();
 }

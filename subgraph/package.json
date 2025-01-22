@@ -4,10 +4,10 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy mark-stream-subgraph --version-label v0.0.1 --node https://subgraphs.alchemy.com/api/subgraphs/deploy --ipfs https://ipfs.satsuma.xyz",
-    "create-local": "graph create --node http://localhost:8020/ mark-stream-subgraph",
-    "remove-local": "graph remove --node http://localhost:8020/ mark-stream-subgraph",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 mark-stream-subgraph",
+    "deploy": "graph deploy mark-stream --version-label v0.0.1 --node https://subgraphs.alchemy.com/api/subgraphs/deploy --ipfs https://ipfs.satsuma.xyz",
+    "create-local": "graph create --node http://localhost:8020/ mark-stream",
+    "remove-local": "graph remove --node http://localhost:8020/ mark-stream",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 mark-stream",
     "test": "graph test"
   },
   "dependencies": {
