@@ -1,0 +1,77 @@
+type Label @entity {
+  id: Bytes!
+  creator: Bytes! # address
+  status: String! # active, deleted
+  totalContributions: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type File @entity {
+  id: Bytes!
+  totalLabels: BigInt! # uint256
+  totalContributions: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type FileLabel @entity {
+  id: Bytes!
+  fileId: BigInt! # uint256
+  labelId: BigInt! # uint256
+  totalContributions: BigInt! # uint256
+  totalUpVotes: BigInt! # uint256
+  totalDownVotes: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LabelAdded @entity(immutable: true) {
+  id: Bytes!
+  contributor: Bytes! # address
+  labelId: BigInt! # uint256
+  description: String!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LabelRemoved @entity(immutable: true) {
+  id: Bytes!
+  contributor: Bytes! # address
+  labelId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LabelUpVoted @entity(immutable: true) {
+  id: Bytes!
+  contributor: Bytes! # address
+  labelId: BigInt! # uint256
+  fileHash: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type LabelDownVoted @entity(immutable: true) {
+  id: Bytes!
+  contributor: Bytes! # address
+  labelId: BigInt! # uint256
+  fileHash: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnerChanged @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
