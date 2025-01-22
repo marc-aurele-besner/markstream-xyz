@@ -67,7 +67,6 @@ contract MarkStreamLabel {
     function _removeLabel(uint256 label) private {
         delete labels[label];
         delete labelsDescription[label];
-        labelCount--;
         emit LabelRemoved(label, msg.sender);
     }
 
@@ -202,6 +201,10 @@ contract MarkStreamLabel {
 
     function getLabelDescription(uint256 label) public view returns (string memory) {
         return labelsDescription[label];
+    }
+
+    function getLabelStatus(uint256 label) public view returns (bool) {
+        return labels[label];
     }
 
     function getLabelCount() public view returns (uint256) {

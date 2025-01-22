@@ -210,7 +210,9 @@ contract MarkStreamLabelTest is Test {
         
         markStreamLabel.removeLabels(labelsToRemove);
         
-        assertEq(markStreamLabel.getLabelCount(), 1);
+        assertEq(markStreamLabel.getLabelCount(), 3);
+        assertEq(markStreamLabel.getLabelStatus(0), false);
+        assertEq(markStreamLabel.getLabelStatus(1), false);
         vm.expectRevert(MarkStreamLabel.InvalidLabel.selector);
         markStreamLabel.upVoteFileLabel(FILE_HASH_1, 0); // Should fail as label 0 was removed
     }
