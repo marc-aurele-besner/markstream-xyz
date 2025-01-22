@@ -16,11 +16,11 @@ contract MarkStreamLabel {
 
     mapping(address contributor => uint256) public userContributions;
 
-    event LabelAdded(uint256 label, string description, address contributor);
-    event LabelRemoved(uint256 label, address contributor);
-    event LabelUpVoted(uint256 label, uint256 fileHash, address contributor);
-    event LabelDownVoted(uint256 label, uint256 fileHash, address contributor);
-    event OwnerChanged(address newOwner);
+    event LabelAdded(uint256 indexed label, string description, address contributor);
+    event LabelRemoved(uint256 indexed label, address contributor);
+    event LabelUpVoted(uint256 indexed label, uint256 indexed fileHash, address contributor);
+    event LabelDownVoted(uint256 indexed label, uint256 indexed fileHash, address contributor);
+    event OwnerChanged(address indexed newOwner);
 
     error InvalidLabel();
     error ContributionAlreadyExists();
