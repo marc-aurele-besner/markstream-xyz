@@ -7,13 +7,9 @@ contract MarkStreamLabel {
     address public owner;
 
     mapping(uint256 label => mapping(uint256 fileHash => uint256)) public filesLabels;
-
     mapping(uint256 label => string) public labelsDescription;
-    
     mapping(uint256 label => bool) public labels;
-
     mapping(address contributor => mapping(uint256 label => mapping(uint256 fileHash => uint8))) public contributionType;
-
     mapping(address contributor => uint256) public userContributions;
 
     event LabelAdded(uint256 indexed label, string description, address contributor);
@@ -49,33 +45,33 @@ contract MarkStreamLabel {
         owner = msg.sender;
     }
 
-    function _onNewContribution(address contributor, uint256 label, uint256 fileHash, uint8 newContributionType) internal {
+    function _onNewContribution(address contributor, uint256 label, uint256 fileHash, uint8 newContributionType) private {
         contributionType[contributor][label][fileHash] = newContributionType;
         userContributions[contributor]++;
         contributionCount++;
     }
 
-    function _onRemoveContribution(address contributor, uint256 label, uint256 fileHash, uint8 newContributionType) internal {
+    function _onRemoveContribution(address contributor, uint256 label, uint256 fileHash, uint8 newContributionType) private {
         contributionType[contributor][label][fileHash] = newContributionType;
         userContributions[contributor]--;
         contributionCount--;
     }
 
-    function addLabel(string memory description) public {
+    function _addLabel(string memory description) private {
         labels[labelCount] = true;
         labelsDescription[labelCount] = description;
         labelCount++;
         emit LabelAdded(labelCount - 1, description, msg.sender);
     }
 
-    function removeLabel(uint256 label) public onlyOwner {
+    function _removeLabel(uint256 label) private {
         delete labels[label];
         delete labelsDescription[label];
         labelCount--;
         emit LabelRemoved(label, msg.sender);
     }
 
-    function upVoteFileLabel(uint256 fileHash, uint256 label) public validLabel(label) newContribution(msg.sender, label, fileHash) {
+    function _upVoteFileLabel(uint256 fileHash, uint256 label) private {
         uint8 _contributionType = contributionType[msg.sender][label][fileHash];
         if (_contributionType == 0)
             _onNewContribution(msg.sender, label, fileHash, 1);
@@ -87,7 +83,19 @@ contract MarkStreamLabel {
         emit LabelUpVoted(label, fileHash, msg.sender);
     }
 
-    function downVoteFileLabel(uint256 fileHash, uint256 label) public validLabel(label) {
+    function _upVoteFileLabels(uint256 fileHash, uint256[] memory _labels) private {
+        uint256 _labelCount = _labels.length;
+        for (uint256 i = 0; i < _labelCount; i++) {
+            uint256 _label = _labels[i];
+            if (!labels[_label])
+                revert InvalidLabel();
+            else if (contributionType[msg.sender][_label][fileHash] != 0)
+                revert ContributionAlreadyExists();
+            _upVoteFileLabel(fileHash, _label);
+        }
+    }
+
+    function _downVoteFileLabel(uint256 fileHash, uint256 label) private {
         uint8 _contributionType = contributionType[msg.sender][label][fileHash];
         if (_contributionType == 0)
             _onNewContribution(msg.sender, label, fileHash, 2);
@@ -97,6 +105,63 @@ contract MarkStreamLabel {
             revert InvalidContribution();
         filesLabels[label][fileHash]--;
         emit LabelDownVoted(label, fileHash, msg.sender);
+    }
+
+    function _downVoteFileLabels(uint256 fileHash, uint256[] memory _labels) private {
+        uint256 _labelCount = _labels.length;
+        for (uint256 i = 0; i < _labelCount; i++) {
+            uint256 _label = _labels[i];
+            if (!labels[_label])
+                revert InvalidLabel();
+            _downVoteFileLabel(fileHash, _label);
+        }
+    }
+
+    function addLabel(string memory description) public {
+        _addLabel(description);
+    }
+
+    function addLabels(string[] memory descriptions) public {
+        for (uint256 i = 0; i < descriptions.length; i++) {
+            _addLabel(descriptions[i]);
+        }
+    }
+
+    function removeLabel(uint256 label) public onlyOwner {
+        _removeLabel(label);
+    }
+
+    function removeLabels(uint256[] memory labelsIds) public onlyOwner {
+        for (uint256 i = 0; i < labelsIds.length; i++) {
+            _removeLabel(labelsIds[i]);
+        }
+    }
+
+    function upVoteFileLabel(uint256 fileHash, uint256 label) public validLabel(label) newContribution(msg.sender, label, fileHash) {
+        _upVoteFileLabel(fileHash, label);
+    }
+
+    function upVoteFileLabels(uint256 fileHash, uint256[] memory _labels) public {
+        _upVoteFileLabels(fileHash, _labels);
+    }
+
+    function downVoteFileLabel(uint256 fileHash, uint256 label) public validLabel(label) {
+        _downVoteFileLabel(fileHash, label);
+    }
+
+    function downVoteFileLabels(uint256 fileHash, uint256[] memory _labels) public {
+        _downVoteFileLabels(fileHash, _labels);
+    }
+
+    function groupFilesVotesOnLabel(uint256[] memory fileHashes, uint256 label, bool[] memory isUpVote) public validLabel(label){
+        for (uint256 i = 0; i < fileHashes.length; i++) {
+            if (isUpVote[i]) {
+                if (contributionType[msg.sender][label][fileHashes[i]] != 0)
+                    revert ContributionAlreadyExists();
+                _upVoteFileLabel(fileHashes[i], label);
+            } else
+                _downVoteFileLabel(fileHashes[i], label);
+        }
     }
 
     function changeOwner(address newOwner) public onlyOwner {
