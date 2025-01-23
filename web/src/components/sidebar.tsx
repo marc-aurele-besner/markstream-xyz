@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { SubgraphLabelsQuery } from "@/gql/subgraph/graphql";
 import { cn } from "@/lib/utils";
-import { Label } from "../data/labels";
+// import { Label } from "../data/labels";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-  labels: Label[];
+  labels: SubgraphLabelsQuery["labels"];
 }
 
 export function Sidebar({ className, labels }: SidebarProps) {
@@ -121,7 +122,7 @@ export function Sidebar({ className, labels }: SidebarProps) {
             <div className="space-y-1 p-2">
               {labels?.map((label, i) => (
                 <Button
-                  key={`${label}-${i}`}
+                  key={label.id}
                   variant="ghost"
                   className="w-full justify-start font-normal"
                 >
@@ -141,7 +142,7 @@ export function Sidebar({ className, labels }: SidebarProps) {
                     <path d="M16 6H3" />
                     <path d="M12 18H3" />
                   </svg>
-                  {label}
+                  {label.description}
                 </Button>
               ))}
             </div>

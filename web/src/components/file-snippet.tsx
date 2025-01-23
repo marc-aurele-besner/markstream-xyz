@@ -10,8 +10,8 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { labels } from "@/data/labels";
-import { LastFilesQuery } from "@/gql/graphql";
+import { LastFilesQuery } from "@/gql/indexer/graphql";
+import { SubgraphLabelsQuery } from "@/gql/subgraph/graphql";
 import { cn } from "@/lib/utils";
 import { detectFileType, extractFileData } from "@/utils/file";
 import { PlusCircle } from "lucide-react";
@@ -19,8 +19,11 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 // import ReactJson from "react-json-view";
+import MarkStreamLabelAbi from "@/abis/MarkStreamLabel.json";
+import { useWriteContract } from "wagmi";
 
 interface AlbumArtworkProps extends React.HTMLAttributes<HTMLDivElement> {
+  labels: SubgraphLabelsQuery["labels"];
   file: LastFilesQuery["files_files"][number];
 }
 
@@ -32,10 +35,16 @@ type PreviewData = {
   uploadOptions: any;
 };
 
-export function FileSnippet({ file, className, ...props }: AlbumArtworkProps) {
+export function FileSnippet({
+  labels,
+  file,
+  className,
+  ...props
+}: AlbumArtworkProps) {
   console.log("1. file", file);
   const [rawData, setRawData] = useState<PreviewData | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const { writeContractAsync } = useWriteContract();
 
   const getDataTypes = useCallback(async () => {
     const { dataArrayBuffer, isEncrypted, uploadOptions } = extractFileData({
@@ -157,17 +166,27 @@ export function FileSnippet({ file, className, ...props }: AlbumArtworkProps) {
           <div className="overflow-hidden rounded-md">{preview}</div>
         </ContextMenuTrigger>
         <ContextMenuContent className="w-40">
-          <ContextMenuItem>Add to favorites</ContextMenuItem>
+          <ContextMenuItem disabled>Add to favorites</ContextMenuItem>
           <ContextMenuSub>
             <ContextMenuSubTrigger>Add label</ContextMenuSubTrigger>
             <ContextMenuSubContent className="w-48">
-              <ContextMenuItem>
+              <ContextMenuItem disabled>
                 <PlusCircle className="mr-2 h-4 w-4" />
-                New Playlist
+                New Label
               </ContextMenuItem>
               <ContextMenuSeparator />
               {labels.map((label) => (
-                <ContextMenuItem key={label}>
+                <ContextMenuItem
+                  key={label.id}
+                  onClick={async () => {
+                    await writeContractAsync({
+                      address: "0xbCB71d4dA1F96109690eB8b48a154e4a9088D951",
+                      abi: MarkStreamLabelAbi,
+                      functionName: "upVoteFileLabel",
+                      args: [`0x${parseInt(file.id, 16)}`, label.labelId],
+                    });
+                  }}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -180,7 +199,7 @@ export function FileSnippet({ file, className, ...props }: AlbumArtworkProps) {
                   >
                     <path d="M21 15V6M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM12 12H3M16 6H3M12 18H3" />
                   </svg>
-                  {label}
+                  {label.description}
                 </ContextMenuItem>
               ))}
             </ContextMenuSubContent>

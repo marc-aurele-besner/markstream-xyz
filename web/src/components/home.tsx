@@ -8,16 +8,29 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { labels } from "@/data/labels";
-import { LastFilesQuery, useLastFilesSuspenseQuery } from "@/gql/graphql";
+import {
+  LastFilesQuery,
+  useLastFilesSuspenseQuery,
+} from "@/gql/indexer/graphql";
+import {
+  SubgraphLabelsQuery,
+  useSubgraphLabelsSuspenseQuery,
+} from "@/gql/subgraph/graphql";
 import { PlusCircle } from "lucide-react";
 import Image from "next/image";
 
 export const Home = () => {
   const { data } = useLastFilesSuspenseQuery({
     variables: {},
-    fetchPolicy: "network-only",
+    fetchPolicy: "cache-and-network",
   });
+
+  const { data: labelsData } = useSubgraphLabelsSuspenseQuery({
+    variables: {},
+    fetchPolicy: "cache-and-network",
+  });
+
+  console.log("labelsData", labelsData);
 
   return (
     <>
@@ -42,7 +55,10 @@ export const Home = () => {
         <div className="border-t">
           <div className="bg-background">
             <div className="grid lg:grid-cols-5">
-              <Sidebar labels={labels} className="hidden lg:block" />
+              <Sidebar
+                labels={labelsData?.labels || []}
+                className="hidden lg:block"
+              />
               <div className="col-span-3 lg:col-span-4 lg:border-l">
                 <div className="h-full px-4 py-6 lg:px-8">
                   <Tabs defaultValue="files" className="h-full space-y-6">
@@ -86,6 +102,7 @@ export const Home = () => {
                                 ) => (
                                   <FileSnippet
                                     key={index}
+                                    labels={labelsData?.labels || []}
                                     file={file}
                                     className="w-[250px]"
                                   />
