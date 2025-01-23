@@ -20,6 +20,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 // import ReactJson from "react-json-view";
 import MarkStreamLabelAbi from "@/abis/MarkStreamLabel.json";
+import { blake3HashFromCid, stringToCid } from "@autonomys/auto-dag-data";
 import { useWriteContract } from "wagmi";
 
 interface AlbumArtworkProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -179,11 +180,20 @@ export function FileSnippet({
                 <ContextMenuItem
                   key={label.id}
                   onClick={async () => {
+                    const fileHash =
+                      "0x" +
+                      Buffer.from(
+                        blake3HashFromCid(stringToCid(file.id))
+                      ).toString("hex");
+                    // const fileCidVerified = cidToString(
+                    //   cidFromBlakeHash(Buffer.from(fileHash, "hex"))
+                    // );
+
                     await writeContractAsync({
                       address: "0xbCB71d4dA1F96109690eB8b48a154e4a9088D951",
                       abi: MarkStreamLabelAbi,
                       functionName: "upVoteFileLabel",
-                      args: [`0x${parseInt(file.id, 16)}`, label.labelId],
+                      args: [fileHash, label.labelId],
                     });
                   }}
                 >

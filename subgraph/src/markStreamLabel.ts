@@ -101,7 +101,7 @@ export function handleLabelUpVoted(event: LabelUpVotedEvent): void {
   file.save();
 
   // // Update or create FileLabel entity
-  let fileLabelId = Bytes.fromHexString(
+  let fileLabelId = Bytes.fromUTF8(
     event.params.fileHash
       .toString()
       .concat("-")
@@ -157,7 +157,7 @@ export function handleLabelDownVoted(event: LabelDownVotedEvent): void {
   file.save();
 
   // Update or create FileLabel entity
-  let fileLabelId = Bytes.fromHexString(
+  let fileLabelId = Bytes.fromUTF8(
     event.params.fileHash
       .toString()
       .concat("-")
