@@ -1,0 +1,7 @@
+query SubgraphLabels {
+  labels(first: 5, orderBy: id) {
+    id
+    labelId
+    description
+  }
+}
