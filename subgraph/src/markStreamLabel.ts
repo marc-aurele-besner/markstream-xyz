@@ -81,7 +81,6 @@ export function handleLabelUpVoted(event: LabelUpVotedEvent): void {
   labelUpVoted.blockNumber = event.block.number;
   labelUpVoted.blockTimestamp = event.block.timestamp;
   labelUpVoted.transactionHash = event.transaction.hash;
-  labelUpVoted.save();
 
   // Update or create File entity
   const fileHashByteArray = Bytes.fromBigInt(event.params.fileHash);
@@ -98,7 +97,6 @@ export function handleLabelUpVoted(event: LabelUpVotedEvent): void {
   file.totalContributions = file.totalContributions.plus(
     BigInt.fromString("1")
   );
-  file.save();
 
   // // Update or create FileLabel entity
   let fileLabelId = Bytes.fromUTF8(
@@ -118,11 +116,16 @@ export function handleLabelUpVoted(event: LabelUpVotedEvent): void {
     fileLabel.blockNumber = event.block.number;
     fileLabel.blockTimestamp = event.block.timestamp;
     fileLabel.transactionHash = event.transaction.hash;
+
+    file.totalLabels = file.totalLabels.plus(BigInt.fromString("1"));
   }
   fileLabel.totalUpVotes = fileLabel.totalUpVotes.plus(BigInt.fromString("1"));
   fileLabel.totalContributions = fileLabel.totalContributions.plus(
     BigInt.fromString("1")
   );
+
+  labelUpVoted.save();
+  file.save();
   fileLabel.save();
 }
 
@@ -137,7 +140,6 @@ export function handleLabelDownVoted(event: LabelDownVotedEvent): void {
   labelDownVoted.blockNumber = event.block.number;
   labelDownVoted.blockTimestamp = event.block.timestamp;
   labelDownVoted.transactionHash = event.transaction.hash;
-  labelDownVoted.save();
 
   // Update or create File entity
   const fileHashByteArray = Bytes.fromBigInt(event.params.fileHash);
@@ -154,7 +156,6 @@ export function handleLabelDownVoted(event: LabelDownVotedEvent): void {
   file.totalContributions = file.totalContributions.plus(
     BigInt.fromString("1")
   );
-  file.save();
 
   // Update or create FileLabel entity
   let fileLabelId = Bytes.fromUTF8(
@@ -181,6 +182,9 @@ export function handleLabelDownVoted(event: LabelDownVotedEvent): void {
   fileLabel.totalContributions = fileLabel.totalContributions.plus(
     BigInt.fromString("1")
   );
+
+  labelDownVoted.save();
+  file.save();
   fileLabel.save();
 }
 
