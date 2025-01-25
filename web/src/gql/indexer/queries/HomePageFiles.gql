@@ -1,4 +1,4 @@
-query LastFiles {
+query HomePageFiles {
   any_files: files_files(limit: 15, order_by: { _block_range: desc }) {
     id
     name
