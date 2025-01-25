@@ -1,5 +1,6 @@
 "use client";
 
+import MarkStreamLabelAbi from "@/abis/MarkStreamLabel.json";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -14,14 +15,13 @@ import { LastFilesQuery } from "@/gql/indexer/graphql";
 import { SubgraphLabelsQuery } from "@/gql/subgraph/graphql";
 import { cn } from "@/lib/utils";
 import { detectFileType, extractFileData } from "@/utils/file";
+import { blake3HashFromCid, stringToCid } from "@autonomys/auto-dag-data";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { PlusCircle } from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
-// import ReactJson from "react-json-view";
-import MarkStreamLabelAbi from "@/abis/MarkStreamLabel.json";
-import { blake3HashFromCid, stringToCid } from "@autonomys/auto-dag-data";
-import { useWriteContract } from "wagmi";
+import { useAccount, useWriteContract } from "wagmi";
 
 interface AlbumArtworkProps extends React.HTMLAttributes<HTMLDivElement> {
   labels: SubgraphLabelsQuery["labels"];
@@ -45,6 +45,8 @@ export function FileSnippet({
   console.log("1. file", file);
   const [rawData, setRawData] = useState<PreviewData | null>(null);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const { address, isConnected, chain } = useAccount();
+  const { openConnectModal } = useConnectModal();
   const { writeContractAsync } = useWriteContract();
 
   const getDataTypes = useCallback(async () => {
@@ -166,64 +168,72 @@ export function FileSnippet({
         <ContextMenuTrigger>
           <div className="overflow-hidden rounded-md">{preview}</div>
         </ContextMenuTrigger>
-        <ContextMenuContent className="w-40">
-          <ContextMenuItem disabled>Add to favorites</ContextMenuItem>
-          <ContextMenuSub>
-            <ContextMenuSubTrigger>Add label</ContextMenuSubTrigger>
-            <ContextMenuSubContent className="w-48">
-              <ContextMenuItem disabled>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                New Label
-              </ContextMenuItem>
-              <ContextMenuSeparator />
-              {labels.map((label) => (
-                <ContextMenuItem
-                  key={label.id}
-                  onClick={async () => {
-                    const fileHash =
-                      "0x" +
-                      Buffer.from(
-                        blake3HashFromCid(stringToCid(file.id))
-                      ).toString("hex");
-                    // const fileCidVerified = cidToString(
-                    //   cidFromBlakeHash(Buffer.from(fileHash, "hex"))
-                    // );
-
-                    await writeContractAsync({
-                      address: "0xbCB71d4dA1F96109690eB8b48a154e4a9088D951",
-                      abi: MarkStreamLabelAbi,
-                      functionName: "upVoteFileLabel",
-                      args: [fileHash, label.labelId],
-                    });
-                  }}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="mr-2 h-4 w-4"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M21 15V6M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM12 12H3M16 6H3M12 18H3" />
-                  </svg>
-                  {label.description}
+        {isConnected ? (
+          <ContextMenuContent className="w-40">
+            <ContextMenuItem disabled>Add to favorites</ContextMenuItem>
+            <ContextMenuSub>
+              <ContextMenuSubTrigger>Add label</ContextMenuSubTrigger>
+              <ContextMenuSubContent className="w-48">
+                <ContextMenuItem disabled>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  New Label
                 </ContextMenuItem>
-              ))}
-            </ContextMenuSubContent>
-          </ContextMenuSub>
-          <ContextMenuSeparator />
-          <ContextMenuItem disabled>No labels</ContextMenuItem>
-          {/* <ContextMenuItem>Play Later</ContextMenuItem>
+                <ContextMenuSeparator />
+                {labels.map((label) => (
+                  <ContextMenuItem
+                    key={label.id}
+                    onClick={async () => {
+                      const fileHash =
+                        "0x" +
+                        Buffer.from(
+                          blake3HashFromCid(stringToCid(file.id))
+                        ).toString("hex");
+                      // const fileCidVerified = cidToString(
+                      //   cidFromBlakeHash(Buffer.from(fileHash, "hex"))
+                      // );
+
+                      await writeContractAsync({
+                        address: "0xbCB71d4dA1F96109690eB8b48a154e4a9088D951",
+                        abi: MarkStreamLabelAbi,
+                        functionName: "upVoteFileLabel",
+                        args: [fileHash, label.labelId],
+                      });
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      className="mr-2 h-4 w-4"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M21 15V6M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM12 12H3M16 6H3M12 18H3" />
+                    </svg>
+                    {label.description}
+                  </ContextMenuItem>
+                ))}
+              </ContextMenuSubContent>
+            </ContextMenuSub>
+            <ContextMenuSeparator />
+            <ContextMenuItem disabled>No labels</ContextMenuItem>
+            {/* <ContextMenuItem>Play Later</ContextMenuItem>
           <ContextMenuItem>Create Station</ContextMenuItem> */}
-          <ContextMenuSeparator />
-          <ContextMenuItem>Report</ContextMenuItem>
-          <ContextMenuSeparator />
-          <ContextMenuItem>Like</ContextMenuItem>
-          <ContextMenuItem>Share</ContextMenuItem>
-        </ContextMenuContent>
+            <ContextMenuSeparator />
+            <ContextMenuItem>Report</ContextMenuItem>
+            <ContextMenuSeparator />
+            <ContextMenuItem>Like</ContextMenuItem>
+            <ContextMenuItem>Share</ContextMenuItem>
+          </ContextMenuContent>
+        ) : (
+          <ContextMenuContent className="w-40">
+            <ContextMenuItem onClick={openConnectModal}>
+              Connect wallet
+            </ContextMenuItem>
+          </ContextMenuContent>
+        )}
       </ContextMenu>
       <div className="space-y-1 text-sm">
         <h3 className="font-medium leading-none">{file && file.name}</h3>
