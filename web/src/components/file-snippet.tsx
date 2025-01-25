@@ -11,7 +11,7 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { LastFilesQuery } from "@/gql/indexer/graphql";
+import { HomePageFilesQuery } from "@/gql/indexer/graphql";
 import { SubgraphLabelsQuery } from "@/gql/subgraph/graphql";
 import { cn } from "@/lib/utils";
 import { detectFileType, extractFileData } from "@/utils/file";
@@ -25,7 +25,7 @@ import { useAccount, useWriteContract } from "wagmi";
 
 interface AlbumArtworkProps extends React.HTMLAttributes<HTMLDivElement> {
   labels: SubgraphLabelsQuery["labels"];
-  file: LastFilesQuery["files_files"][number];
+  file: HomePageFilesQuery["any_files"][number];
 }
 
 type PreviewData = {
