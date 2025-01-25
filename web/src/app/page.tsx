@@ -1,14 +1,14 @@
 "use client";
 
-import { Home } from "@/components/home";
-import { Suspense } from "react";
+import dynamic from "next/dynamic";
 
-export const dynamic = "force-dynamic";
+const Home = dynamic(
+  () => import("@/components/home").then((mod) => mod.Home),
+  {
+    loading: () => <div>Loading...</div>,
+  }
+);
 
 export default function Page() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Home />
-    </Suspense>
-  );
+  return <Home />;
 }
