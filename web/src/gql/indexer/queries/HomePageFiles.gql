@@ -1,5 +1,5 @@
 query HomePageFiles {
-  any_files: files_files(limit: 15, order_by: { _block_range: desc }) {
+  any_files: files_files(limit: 5, order_by: { _block_range: desc }) {
     id
     name
     chunk {
@@ -14,7 +14,7 @@ query HomePageFiles {
     }
   }
   picture_files: files_files(
-    limit: 15
+    limit: 5
     order_by: { _block_range: desc }
     where: { _or: [{ name: { _ilike: "%jpg" } }, { name: { _ilike: "%png" } }] }
   ) {
