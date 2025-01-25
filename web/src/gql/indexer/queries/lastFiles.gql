@@ -1,5 +1,23 @@
 query LastFiles {
-  files_files(limit: 15, order_by: { id: asc }) {
+  any_files: files_files(limit: 15, order_by: { cid: { timestamp: desc } }) {
+    id
+    name
+    chunk {
+      data
+      uploadOptions: upload_options
+    }
+    file_cids {
+      chunk {
+        data
+        uploadOptions: upload_options
+      }
+    }
+  }
+  picture_files: files_files(
+    limit: 15
+    order_by: { cid: { timestamp: desc } }
+    where: { _or: [{ name: { _ilike: "%jpg" } }, { name: { _ilike: "%png" } }] }
+  ) {
     id
     name
     chunk {

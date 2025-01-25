@@ -53,6 +53,7 @@ export function FileSnippet({
     const { dataArrayBuffer, isEncrypted, uploadOptions } = extractFileData({
       files_files: [file],
     });
+    if (!dataArrayBuffer) return;
     const fileType = await detectFileType(dataArrayBuffer);
     console.log(fileType);
     setRawData({

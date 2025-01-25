@@ -9,8 +9,8 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  LastFilesQuery,
-  useLastFilesSuspenseQuery,
+  HomePageFilesQuery,
+  useHomePageFilesSuspenseQuery,
 } from "@/gql/indexer/graphql";
 import {
   SubgraphLabelsQuery,
@@ -20,7 +20,7 @@ import { PlusCircle } from "lucide-react";
 import Image from "next/image";
 
 export const Home = () => {
-  const { data } = useLastFilesSuspenseQuery({
+  const { data } = useHomePageFilesSuspenseQuery({
     variables: {},
     fetchPolicy: "cache-and-network",
   });
@@ -83,7 +83,7 @@ export const Home = () => {
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
                           <h2 className="text-2xl font-semibold tracking-tight">
-                            Files
+                            Last Files
                           </h2>
                           <p className="text-sm text-muted-foreground">
                             Latest files uploaded on Autonomys Network
@@ -95,9 +95,9 @@ export const Home = () => {
                         <ScrollArea>
                           <div className="flex space-x-4 pb-4">
                             {data &&
-                              data.files_files.map(
+                              data.any_files.map(
                                 (
-                                  file: LastFilesQuery["files_files"][number],
+                                  file: HomePageFilesQuery["any_files"][number],
                                   index: number
                                 ) => (
                                   <FileSnippet
@@ -112,34 +112,33 @@ export const Home = () => {
                           <ScrollBar orientation="horizontal" />
                         </ScrollArea>
                       </div>
-                      {/* <div className="mt-6 space-y-1">
+                      <div className="mt-6 space-y-1">
                         <h2 className="text-2xl font-semibold tracking-tight">
-                          Made for You
+                          Last images
                         </h2>
                         <p className="text-sm text-muted-foreground">
-                          Your personal playlists. Updated daily.
+                          Latest images uploaded on Autonomys Network
                         </p>
                       </div>
                       <Separator className="my-4" />
                       <div className="relative">
                         <ScrollArea>
                           <div className="flex space-x-4 pb-4">
-                            {data.files_files.map(
-                              (file: any, index: number) => (
-                                <FileSnippet
-                                  key={index}
-                                  file={file}
-                                  className="w-[250px]"
-                                  aspectRatio="portrait"
-                                  width={250}
-                                  height={330}
-                                />
-                              )
-                            )}
+                            {data &&
+                              data.picture_files.map(
+                                (file: any, index: number) => (
+                                  <FileSnippet
+                                    key={index}
+                                    labels={labelsData?.labels || []}
+                                    file={file}
+                                    className="w-[250px]"
+                                  />
+                                )
+                              )}
                           </div>
                           <ScrollBar orientation="horizontal" />
                         </ScrollArea>
-                      </div> */}
+                      </div>
                     </TabsContent>
                     <TabsContent
                       value="folders"

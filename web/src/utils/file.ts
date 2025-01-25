@@ -134,7 +134,10 @@ const extractFileDataByType = (
   }
   try {
     console.log("1. uploadOptions", uploadOptions);
-    if (uploadOptions.compression.algorithm === "ZLIB") {
+    if (
+      uploadOptions.compression &&
+      uploadOptions.compression.algorithm === "ZLIB"
+    ) {
       dataArrayBuffer = pako.inflate(
         new Uint8Array(dataArrayBuffer)
       ) as unknown as ArrayBuffer;
